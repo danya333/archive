@@ -35,10 +35,12 @@ public class FileServiceImpl implements FileService {
     public File create(MultipartFile multipartFile) {
         File file = new File();
         file.setName(multipartFile.getOriginalFilename());
-        file.setCreatedAt(LocalDateTime.now());
+        file.setUploadedAt(LocalDateTime.now());
         file.setType(multipartFile.getContentType());
         file.setPath(this.upload(multipartFile));
+        file.setSize(multipartFile.getSize());
         file.setUser(userService.getCurrentUser());
+        file.setDescription("First version");
         fileRepository.save(file);
         return file;
     }

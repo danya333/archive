@@ -1,3 +1,5 @@
+create schema if not exists archive;
+
 create table if not exists users
 (
     id       serial8,
@@ -39,7 +41,7 @@ create table if not exists stages
 );
 
 
-create table if not exists stages_status
+create table if not exists stages_statuses
 (
     id        serial8,
     stage_id  int8 not null,
@@ -86,7 +88,7 @@ create table if not exists sections
 );
 
 
-create table if not exists files
+create table if not exists albums
 (
     id                 serial8,
     created_by_user_id int8      not null,
@@ -94,9 +96,8 @@ create table if not exists files
     section_id         int8      not null,
     status_id          int8      not null,
     name               varchar   not null,
-    type               varchar   not null,
-    path               varchar   not null,
-    weight             int4      not null,
+    short_name         varchar   not null,
+    code               varchar   not null,
     created_at         timestamp not null,
     updated_at         timestamp not null,
     primary key (id),
@@ -106,3 +107,19 @@ create table if not exists files
     foreign key (status_id) references statuses (id)
 );
 
+
+create table if not exists files
+(
+    id          serial8,
+    user_id     int8      not null,
+    album_id    int8      not null,
+    name        varchar   not null,
+    description varchar,
+    type        varchar   not null,
+    path        varchar   not null,
+    size        int8      not null,
+    uploaded_at timestamp not null,
+    primary key (id),
+    foreign key (user_id) references users (id),
+    foreign key (album_id) references albums (id)
+);

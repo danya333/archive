@@ -31,5 +31,13 @@ public class User {
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     @JsonManagedReference
     private List<File> files = new ArrayList<>();
+
+    @OneToMany(mappedBy = "createdBy", fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private List<Album> createdAlbums = new ArrayList<>();
+
+    @OneToMany(mappedBy = "updatedBy", fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private List<Album> updatedAlbums = new ArrayList<>();
 }
 
