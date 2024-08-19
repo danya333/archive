@@ -1,5 +1,6 @@
 package com.mrv.archive.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -19,6 +20,11 @@ public class Year {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private int year;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "stage_id")
+    @JsonBackReference
+    private Stage stage;
 
     @OneToMany(mappedBy = "year", fetch = FetchType.LAZY)
     @JsonManagedReference

@@ -113,6 +113,7 @@ create table if not exists files
     id          serial8,
     user_id     int8      not null,
     album_id    int8      not null,
+    file_ref_id int8      not null,
     name        varchar   not null,
     description varchar,
     type        varchar   not null,

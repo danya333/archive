@@ -35,6 +35,10 @@ public class Stage {
     @JsonManagedReference
     private List<StageStatus> stageStatuses = new ArrayList<>();
 
+    @OneToMany(mappedBy = "stage", fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private List<Year> years = new ArrayList<>();
+
 
 
 }

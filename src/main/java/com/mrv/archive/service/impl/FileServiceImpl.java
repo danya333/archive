@@ -32,7 +32,7 @@ public class FileServiceImpl implements FileService {
 
     @Override
     @Transactional
-    public File create(MultipartFile multipartFile) {
+    public File create(MultipartFile multipartFile, String description) {
         File file = new File();
         file.setName(multipartFile.getOriginalFilename());
         file.setUploadedAt(LocalDateTime.now());
@@ -40,7 +40,25 @@ public class FileServiceImpl implements FileService {
         file.setPath(this.upload(multipartFile));
         file.setSize(multipartFile.getSize());
         file.setUser(userService.getCurrentUser());
-        file.setDescription("First version");
+        file.setDescription(description);
+        fileRepository.save(file);
+        file.setFileRefId(file.getId());
+        fileRepository.save(file);
+        return file;
+    }
+
+    @Override
+    @Transactional
+    public File updateFileVersion(MultipartFile multipartFile, String description, Long fileRefId) {
+        File file = new File();
+        file.setName(multipartFile.getOriginalFilename());
+        file.setUploadedAt(LocalDateTime.now());
+        file.setType(multipartFile.getContentType());
+        file.setPath(this.upload(multipartFile));
+        file.setSize(multipartFile.getSize());
+        file.setUser(userService.getCurrentUser());
+        file.setDescription(description);
+        file.setFileRefId(fileRefId);
         fileRepository.save(file);
         return file;
     }

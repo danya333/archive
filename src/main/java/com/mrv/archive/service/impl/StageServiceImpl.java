@@ -6,6 +6,7 @@ import com.mrv.archive.model.Status;
 import com.mrv.archive.repository.StageRepository;
 import com.mrv.archive.service.LocationService;
 import com.mrv.archive.service.StageService;
+import com.mrv.archive.service.StageStatusService;
 import com.mrv.archive.service.StatusService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ public class StageServiceImpl implements StageService {
     private final StageRepository stageRepository;
     private final LocationService locationService;
     private final StatusService statusService;
+    private final StageStatusService stageStatusService;
 
     @Override
     public Stage getById(Long id) {
@@ -37,16 +39,18 @@ public class StageServiceImpl implements StageService {
 
     @Override
     @Transactional
-    public Stage create(Stage stage, Long locationId, Long statusId) {
+    public Stage create(Stage stage, Long locationId, Long statusId, List<Long> statusIds) {
         Location location = locationService.getById(locationId);
         Status status = statusService.getById(statusId);
         stage.setLocation(location);
         stage.setStatus(status);
+        statusIds.forEach(id -> stageStatusService.create(stage, statusService.getById(id)));
         return stageRepository.save(stage);
     }
 
     @Override
     @Transactional
+    // Нужно доработать работу со статусами
     public Stage update(Stage stage, Long stageId, Long locationId, Long statusId) {
         Stage oldStage = this.getById(stageId);
         oldStage.setLocation(locationService.getById(locationId));

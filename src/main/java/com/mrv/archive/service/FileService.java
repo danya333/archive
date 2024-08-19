@@ -7,8 +7,8 @@ import java.util.List;
 
 public interface FileService {
 
-    File create(MultipartFile multipartFile);
-
+    File create(MultipartFile multipartFile, String description);
+    File updateFileVersion(MultipartFile multipartFile, String description, Long fileRefId);
     String upload(MultipartFile file);
 
     List<byte[]> download(Long id);
