@@ -52,26 +52,19 @@ create table if not exists stages_statuses
 );
 
 
-create table if not exists years
-(
-    id   serial8,
-    year int4 not null,
-    primary key (id)
-);
-
-
 create table if not exists projects
 (
     id         serial8,
+    stage_id   int8      not null,
     name       varchar   not null,
     short_name varchar   not null,
     code       varchar   not null,
     created_at timestamp not null,
-    year_id    int8      not null,
+    year       int4      not null,
     status_id  int8,
     primary key (id),
-    foreign key (year_id) references years (id),
-    foreign key (status_id) references statuses (id)
+    foreign key (status_id) references statuses (id),
+    foreign key (status_id) references stages (id)
 );
 
 
@@ -110,16 +103,17 @@ create table if not exists albums
 
 create table if not exists files
 (
-    id          serial8,
-    user_id     int8      not null,
-    album_id    int8      not null,
-    file_ref_id int8      not null,
-    name        varchar   not null,
-    description varchar,
-    type        varchar   not null,
-    path        varchar   not null,
-    size        int8      not null,
-    uploaded_at timestamp not null,
+    id           serial8,
+    user_id      int8      not null,
+    album_id     int8      not null,
+    file_ref_id  int8      not null,
+    version int4      not null,
+    name         varchar   not null,
+    description  varchar,
+    type         varchar   not null,
+    path         varchar   not null,
+    size         int8      not null,
+    uploaded_at  timestamp not null,
     primary key (id),
     foreign key (user_id) references users (id),
     foreign key (album_id) references albums (id)

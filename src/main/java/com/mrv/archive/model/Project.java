@@ -26,14 +26,14 @@ public class Project {
     private LocalDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "year_id")
-    @JsonBackReference
-    private Year year;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "status_id")
     @JsonBackReference
     private Status status;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "stage_id")
+    @JsonBackReference
+    private Stage stage;
 
     @OneToMany(mappedBy = "project", fetch = FetchType.LAZY)
     @JsonManagedReference

@@ -2,8 +2,10 @@ package com.mrv.archive.service.impl;
 
 import com.mrv.archive.exception.FileDownloadException;
 import com.mrv.archive.exception.FileUploadException;
+import com.mrv.archive.model.Album;
 import com.mrv.archive.model.File;
 import com.mrv.archive.repository.FileRepository;
+import com.mrv.archive.service.AlbumService;
 import com.mrv.archive.service.FileService;
 import com.mrv.archive.service.UserService;
 import com.mrv.archive.service.props.MinioProperties;
@@ -16,10 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -29,19 +28,19 @@ public class FileServiceImpl implements FileService {
     private final MinioProperties minioProperties;
     private final FileRepository fileRepository;
     private final UserService userService;
+    private final AlbumService albumService;
+
+
+    @Override
+    public File getFile(Long id) {
+        return fileRepository.findById(id).orElseThrow(() -> new NoSuchElementException("File not found"));
+    }
 
     @Override
     @Transactional
     public File create(MultipartFile multipartFile, String description) {
-        File file = new File();
-        file.setName(multipartFile.getOriginalFilename());
-        file.setUploadedAt(LocalDateTime.now());
-        file.setType(multipartFile.getContentType());
-        file.setPath(this.upload(multipartFile));
-        file.setSize(multipartFile.getSize());
-        file.setUser(userService.getCurrentUser());
-        file.setDescription(description);
-        fileRepository.save(file);
+        File file = newFile(multipartFile, description, 0L);
+        file.setVersion(1);
         file.setFileRefId(file.getId());
         fileRepository.save(file);
         return file;
@@ -50,18 +49,26 @@ public class FileServiceImpl implements FileService {
     @Override
     @Transactional
     public File updateFileVersion(MultipartFile multipartFile, String description, Long fileRefId) {
-        File file = new File();
-        file.setName(multipartFile.getOriginalFilename());
-        file.setUploadedAt(LocalDateTime.now());
-        file.setType(multipartFile.getContentType());
-        file.setPath(this.upload(multipartFile));
-        file.setSize(multipartFile.getSize());
-        file.setUser(userService.getCurrentUser());
-        file.setDescription(description);
-        file.setFileRefId(fileRefId);
-        fileRepository.save(file);
+        File file = newFile(multipartFile, description, fileRefId);
+        file.setVersion(1);
+        List<File> files = fileRepository.findByFileRefId(fileRefId)
+                .orElseThrow(() -> new NoSuchElementException("Files not found"));
+        List<File> sortedFiles = files.stream().sorted(new Comparator<File>() {
+            @Override
+            public int compare(File o1, File o2) {
+                if (o1.getVersion() > o2.getVersion()) {
+                    return 1;
+                } else if (o1.getVersion() < o2.getVersion()) {
+                    return -1;
+                }
+                return 0;
+            }
+        }).toList();
+        int lastVersion = sortedFiles.get(sortedFiles.size() - 1).getVersion();
+        file.setVersion(lastVersion + 1);
         return file;
     }
+
 
     @Override
     @Transactional
@@ -88,36 +95,50 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public List<byte[]> download(Long tagId){
-        List<String> files = this.getFiles(tagId);
-        List<byte[]> fileContents = new ArrayList<>();
-        for (String filePath : files) {
+    public List<byte[]> getFiles(Long albumId){
+        List<String> paths = this.getPaths(albumId);
+        List<byte[]> files = new ArrayList<>();
+        for (String path : paths) {
             try {
                 InputStream stream = minioClient.getObject(
                         GetObjectArgs.builder()
                                 .bucket("files")
-                                .object(filePath)
+                                .object(path)
                                 .build());
 
                 byte[] bytes = stream.readAllBytes();
-                fileContents.add(bytes);
+                files.add(bytes);
                 stream.close();
             } catch (Exception e) {
                 throw new FileDownloadException("File download failed: " + e.getMessage());
             }
         }
-        return fileContents;
+        return files;
     }
 
     @Override
-    public List<String> getFiles(Long tagId) {
-
-        return null;
+    public List<String> getPaths(Long albumId) {
+        Album album = albumService.getAlbum(albumId);
+        List<File> files = fileRepository.findByAlbum(album)
+                .orElseThrow(() -> new NoSuchElementException("Files not found"));
+        return files.stream().map(File::getPath).toList();
     }
 
-    @Override
-    public File getFile(Long id) {
-        return fileRepository.findById(id).orElseThrow(() -> new NoSuchElementException("File not found"));
+
+    // Создание экземпляра класса File
+    @Transactional
+    public File newFile(MultipartFile multipartFile, String description, Long fileRefId){
+        File file = new File();
+        file.setName(multipartFile.getOriginalFilename());
+        file.setUploadedAt(LocalDateTime.now());
+        file.setType(multipartFile.getContentType());
+        file.setPath(this.upload(multipartFile));
+        file.setSize(multipartFile.getSize());
+        file.setUser(userService.getCurrentUser());
+        file.setDescription(description);
+        file.setFileRefId(fileRefId);
+        fileRepository.save(file);
+        return file;
     }
 
 

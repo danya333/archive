@@ -11,9 +11,9 @@ public interface FileService {
     File updateFileVersion(MultipartFile multipartFile, String description, Long fileRefId);
     String upload(MultipartFile file);
 
-    List<byte[]> download(Long id);
+    List<byte[]> getFiles(Long id);
 
-    List<String> getFiles(Long tagId);
+    List<String> getPaths(Long albumId);
 
     File getFile(Long id);
 

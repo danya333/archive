@@ -23,6 +23,7 @@ public class File {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Long fileRefId;
+    private Integer version;
     private String name;
     private String description;
     private String path;

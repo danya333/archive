@@ -57,7 +57,7 @@ public class StatusServiceImpl implements StatusService {
         if (statusRepository.existsById(id)) {
             statusRepository.deleteById(id);
         } else {
-            throw new NoSuchElementException("Status not found");
+            throw new NoSuchElementException("Status wit id " + id + " not found");
         }
     }
 }
