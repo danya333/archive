@@ -44,7 +44,9 @@ public class StageServiceImpl implements StageService {
         Status status = statusService.getById(statusId);
         stage.setLocation(location);
         stage.setStatus(status);
-        statusIds.forEach(id -> stageStatusService.create(stage, statusService.getById(id)));
+        stageRepository.save(stage);
+        statusIds.forEach(id -> stage.getStageStatuses()
+                .add(stageStatusService.create(stage, statusService.getById(id))));
         return stageRepository.save(stage);
     }
 

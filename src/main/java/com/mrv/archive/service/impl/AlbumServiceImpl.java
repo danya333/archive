@@ -52,8 +52,9 @@ public class AlbumServiceImpl implements AlbumService {
         album.setShortName(albumCreateRequestDto.getShortName());
         album.setCode(albumCreateRequestDto.getCode());
         album.setStatus(status);
+        albumRepository.save(album);
         List<File> savedFiles = files.stream()
-                .map(file -> fileService.create(file, "Первая версия")).toList();
+                .map(file -> fileService.create(file, "Первая версия", album)).toList();
         album.setFiles(savedFiles);
         return albumRepository.save(album);
     }
@@ -63,7 +64,7 @@ public class AlbumServiceImpl implements AlbumService {
     public Album addFile(Long albumId, List<MultipartFile> files) {
         Album album = this.getAlbum(albumId);
         album.setUpdatedBy(userService.getCurrentUser());
-        files.forEach(file -> album.getFiles().add(fileService.create(file, "Первая версия")));
+        files.forEach(file -> album.getFiles().add(fileService.create(file, "Первая версия", album)));
         return albumRepository.save(album);
     }
 

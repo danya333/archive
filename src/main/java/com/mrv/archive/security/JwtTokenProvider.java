@@ -85,9 +85,7 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    public JwtResponse refreshUserTokens(
-             final String refreshToken
-    ) {
+    public JwtResponse refreshUserTokens(final String refreshToken) {
         JwtResponse jwtResponse = new JwtResponse();
         if (!isValid(refreshToken)) {
             throw new AccessDeniedException();
@@ -105,9 +103,7 @@ public class JwtTokenProvider {
         return jwtResponse;
     }
 
-    public boolean isValid(
-            final String token
-    ) {
+    public boolean isValid(final String token) {
         Jws<Claims> claims = Jwts
                 .parser()
                 .verifyWith(key)

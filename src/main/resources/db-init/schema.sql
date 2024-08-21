@@ -1,5 +1,3 @@
-create schema if not exists archive;
-
 create table if not exists users
 (
     id       serial8,

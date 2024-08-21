@@ -28,26 +28,82 @@ public class FileServiceImpl implements FileService {
     private final MinioProperties minioProperties;
     private final FileRepository fileRepository;
     private final UserService userService;
-    private final AlbumService albumService;
 
 
     @Override
+    // Получение файла по id
     public File getFile(Long id) {
         return fileRepository.findById(id).orElseThrow(() -> new NoSuchElementException("File not found"));
     }
 
+
+    @Override
+    public List<File> getFiles(Album album) {
+        return fileRepository.findByAlbum(album)
+                .orElseThrow(() -> new NoSuchElementException("Files not found for album " + album.getId()));
+    }
+
+
+    @Override
+    public byte[] downloadFile(Long fileId) {
+        File file = this.getFile(fileId);
+        String path = file.getPath();
+        byte[] bytes;
+        try {
+            InputStream stream = minioClient.getObject(
+                    GetObjectArgs.builder()
+                            .bucket("files")
+                            .object(path)
+                            .build());
+            bytes = stream.readAllBytes();
+            stream.close();
+        } catch (Exception e) {
+            throw new FileDownloadException("File download failed: " + e.getMessage());
+        }
+        return bytes;
+    }
+
+
+    @Override
+    // Возвращае byte[] всех файлов принадлежащих конкретному альбому
+    public List<byte[]> downloadFiles(Album album) {
+        List<String> paths = this.getPaths(album);
+        List<byte[]> files = new ArrayList<>();
+        for (String path : paths) {
+            try {
+                InputStream stream = minioClient.getObject(
+                        GetObjectArgs.builder()
+                                .bucket("files")
+                                .object(path)
+                                .build());
+
+                byte[] bytes = stream.readAllBytes();
+                files.add(bytes);
+                stream.close();
+            } catch (Exception e) {
+                throw new FileDownloadException("File download failed: " + e.getMessage());
+            }
+        }
+        return files;
+    }
+
+
     @Override
     @Transactional
-    public File create(MultipartFile multipartFile, String description) {
+    // Создание нового файла
+    public File create(MultipartFile multipartFile, String description, Album album) {
         File file = newFile(multipartFile, description, 0L);
         file.setVersion(1);
         file.setFileRefId(file.getId());
+        file.setAlbum(album);
         fileRepository.save(file);
         return file;
     }
 
+
     @Override
     @Transactional
+    // Обновление версии файла
     public File updateFileVersion(MultipartFile multipartFile, String description, Long fileRefId) {
         File file = newFile(multipartFile, description, fileRefId);
         file.setVersion(1);
@@ -72,6 +128,7 @@ public class FileServiceImpl implements FileService {
 
     @Override
     @Transactional
+    // Загрузка файла в хранилище
     public String upload(MultipartFile file) {
         try {
             createBucket();
@@ -95,30 +152,18 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public List<byte[]> getFiles(Long albumId){
-        List<String> paths = this.getPaths(albumId);
-        List<byte[]> files = new ArrayList<>();
-        for (String path : paths) {
-            try {
-                InputStream stream = minioClient.getObject(
-                        GetObjectArgs.builder()
-                                .bucket("files")
-                                .object(path)
-                                .build());
-
-                byte[] bytes = stream.readAllBytes();
-                files.add(bytes);
-                stream.close();
-            } catch (Exception e) {
-                throw new FileDownloadException("File download failed: " + e.getMessage());
-            }
+    public void deleteFile(Long fileId, Album album) {
+        if (this.getFile(fileId) != null){
+            album.getFiles().remove(this.getFile(fileId));
+            fileRepository.deleteById(fileId);
+        } else {
+            throw new NoSuchElementException("File with id " + fileId + " not found");
         }
-        return files;
     }
 
-    @Override
-    public List<String> getPaths(Long albumId) {
-        Album album = albumService.getAlbum(albumId);
+
+    // Возвращает пути к файлам конкретного альбома
+    private List<String> getPaths(Album album) {
         List<File> files = fileRepository.findByAlbum(album)
                 .orElseThrow(() -> new NoSuchElementException("Files not found"));
         return files.stream().map(File::getPath).toList();
@@ -126,8 +171,7 @@ public class FileServiceImpl implements FileService {
 
 
     // Создание экземпляра класса File
-    @Transactional
-    public File newFile(MultipartFile multipartFile, String description, Long fileRefId){
+    private File newFile(MultipartFile multipartFile, String description, Long fileRefId) {
         File file = new File();
         file.setName(multipartFile.getOriginalFilename());
         file.setUploadedAt(LocalDateTime.now());

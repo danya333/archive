@@ -1,5 +1,7 @@
 package com.mrv.archive.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -21,7 +23,7 @@ public class Location {
     private String country;
     private String city;
 
-    @OneToMany(mappedBy = "location", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "location", fetch = FetchType.EAGER)
     @JsonManagedReference
     private List<Stage> stages = new ArrayList<>();
 }

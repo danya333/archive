@@ -25,12 +25,12 @@ public class Section {
     private String code;
     private LocalDateTime createdAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "project_id")
     @JsonBackReference
     private Project project;
 
-    @OneToMany(mappedBy = "section", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "section", fetch = FetchType.EAGER)
     @JsonManagedReference
     private List<Album> albums = new ArrayList<>();
 }

@@ -28,15 +28,15 @@ public class User {
     @Transient
     private String passwordConfirmation;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     @JsonManagedReference
     private List<File> files = new ArrayList<>();
 
-    @OneToMany(mappedBy = "createdBy", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "createdBy", fetch = FetchType.EAGER)
     @JsonManagedReference
     private List<Album> createdAlbums = new ArrayList<>();
 
-    @OneToMany(mappedBy = "updatedBy", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "updatedBy", fetch = FetchType.EAGER)
     @JsonManagedReference
     private List<Album> updatedAlbums = new ArrayList<>();
 }

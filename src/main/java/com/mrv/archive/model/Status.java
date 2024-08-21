@@ -1,5 +1,6 @@
 package com.mrv.archive.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -20,15 +21,15 @@ public class Status {
     private Long id;
     private String name;
 
-    @OneToMany(mappedBy = "status", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "status", fetch = FetchType.EAGER)
     @JsonManagedReference
     private List<Stage> stages = new ArrayList<>();
 
-    @OneToMany(mappedBy = "status", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "status", fetch = FetchType.EAGER)
     @JsonManagedReference
     private List<StageStatus> stageStatuses = new ArrayList<>();
 
-    @OneToMany(mappedBy = "status", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "status", fetch = FetchType.EAGER)
     @JsonManagedReference
     private List<Project> projects = new ArrayList<>();
 }
