@@ -10,10 +10,10 @@ public interface FileService {
 
     File getFile(Long id);
     List<File> getFiles(Album album);
-    byte[] downloadFile(Long fileId);
+    List<byte[]> downloadFile(Long fileId);
     List<byte[]> downloadFiles(Album album);
     File create(MultipartFile multipartFile, String description, Album album);
-    File updateFileVersion(MultipartFile multipartFile, String description, Long fileRefId);
+    File updateFileVersion(MultipartFile multipartFile, String description, Long fileRefId, Album album);
     String upload(MultipartFile file);
     void deleteFile(Long fileId, Album album);
 

@@ -58,11 +58,10 @@ create table if not exists projects
     short_name varchar   not null,
     code       varchar   not null,
     created_at timestamp not null,
-    year       int4      not null,
     status_id  int8,
     primary key (id),
     foreign key (status_id) references statuses (id),
-    foreign key (status_id) references stages (id)
+    foreign key (status_id) references statuses (id)
 );
 
 

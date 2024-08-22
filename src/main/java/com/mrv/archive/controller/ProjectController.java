@@ -34,6 +34,7 @@ public class ProjectController {
     public ResponseEntity<Project> createProject(@PathVariable Long stageId,
                                                  @RequestBody ProjectCreateRequestDto projectDto) {
         Project project = projectService.create(projectDto, stageId);
+        project.setSections(null);
         return new ResponseEntity<>(project, HttpStatus.CREATED);
     }
 

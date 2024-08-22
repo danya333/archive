@@ -5,6 +5,7 @@ import com.mrv.archive.model.File;
 import com.mrv.archive.service.AlbumService;
 import com.mrv.archive.service.FileService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @RestController
+@Slf4j
 @RequestMapping("/api/locations/{locationId}/stages/{stageId}/projects/{projectId}/sections/{sectionId}/albums/" +
         "{albumId}/files")
 @RequiredArgsConstructor
@@ -29,9 +31,9 @@ public class FileController {
 
 
     @GetMapping("/{id}/download")
-    public ResponseEntity<byte[]> downloadFile(@PathVariable Long id) {
-        byte[] bytes = fileService.downloadFile(id);
-        return ResponseEntity.ok().body(bytes);
+    public ResponseEntity<List<byte[]>> downloadFile(@PathVariable Long id) {
+        List<byte[]> bytes = fileService.downloadFile(id);
+        return new ResponseEntity<>(bytes, HttpStatus.OK);
     }
 
 
@@ -43,12 +45,13 @@ public class FileController {
     }
 
 
-    @PostMapping("/{id}/updateFileVersion")
-    public ResponseEntity<File> updateFileVersion(@PathVariable Long id,
+    @PostMapping("/{fileRefId}/update")
+    public ResponseEntity<File> updateFileVersion(@PathVariable Long fileRefId,
                                                   @RequestParam String description,
                                                   @RequestParam MultipartFile file) {
-        File parentFile = fileService.getFile(id);
-        File response = fileService.updateFileVersion(file, description, parentFile.getFileRefId());
+        File parentFile = fileService.getFile(fileRefId);
+        log.info("Updating file {} with description {}", fileRefId, description);
+        File response = fileService.updateFileVersion(file, description, fileRefId, parentFile.getAlbum());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

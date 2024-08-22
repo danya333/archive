@@ -6,15 +6,18 @@ import com.mrv.archive.repository.AlbumRepository;
 import com.mrv.archive.service.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AlbumServiceImpl implements AlbumService {
 
     private final AlbumRepository albumRepository;
@@ -53,8 +56,14 @@ public class AlbumServiceImpl implements AlbumService {
         album.setCode(albumCreateRequestDto.getCode());
         album.setStatus(status);
         albumRepository.save(album);
-        List<File> savedFiles = files.stream()
-                .map(file -> fileService.create(file, "Первая версия", album)).toList();
+//        List<File> savedFiles = files.stream()
+//                .map(file -> fileService.create(file, "Первая версия", album)).toList();
+//        album.setFiles(savedFiles);
+        List<File> savedFiles = new ArrayList<>();
+        for (MultipartFile file : files) {
+            File file1 = fileService.create(file, "Первая версия", album);
+            savedFiles.add(file1);
+        }
         album.setFiles(savedFiles);
         return albumRepository.save(album);
     }

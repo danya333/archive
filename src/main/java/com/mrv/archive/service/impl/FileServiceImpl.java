@@ -13,6 +13,7 @@ import io.minio.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,6 +22,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class FileServiceImpl implements FileService {
 
@@ -45,7 +47,7 @@ public class FileServiceImpl implements FileService {
 
 
     @Override
-    public byte[] downloadFile(Long fileId) {
+    public List<byte[]> downloadFile(Long fileId) {
         File file = this.getFile(fileId);
         String path = file.getPath();
         byte[] bytes;
@@ -60,7 +62,7 @@ public class FileServiceImpl implements FileService {
         } catch (Exception e) {
             throw new FileDownloadException("File download failed: " + e.getMessage());
         }
-        return bytes;
+        return List.of(bytes);
     }
 
 
@@ -92,10 +94,11 @@ public class FileServiceImpl implements FileService {
     @Transactional
     // Создание нового файла
     public File create(MultipartFile multipartFile, String description, Album album) {
-        File file = newFile(multipartFile, description, 0L);
+        File file = newFile(multipartFile, description, 0L, album);
         file.setVersion(1);
+        fileRepository.save(file);
+        log.info("File created: {}", file.getId());
         file.setFileRefId(file.getId());
-        file.setAlbum(album);
         fileRepository.save(file);
         return file;
     }
@@ -104,25 +107,16 @@ public class FileServiceImpl implements FileService {
     @Override
     @Transactional
     // Обновление версии файла
-    public File updateFileVersion(MultipartFile multipartFile, String description, Long fileRefId) {
-        File file = newFile(multipartFile, description, fileRefId);
-        file.setVersion(1);
-        List<File> files = fileRepository.findByFileRefId(fileRefId)
-                .orElseThrow(() -> new NoSuchElementException("Files not found"));
-        List<File> sortedFiles = files.stream().sorted(new Comparator<File>() {
-            @Override
-            public int compare(File o1, File o2) {
-                if (o1.getVersion() > o2.getVersion()) {
-                    return 1;
-                } else if (o1.getVersion() < o2.getVersion()) {
-                    return -1;
-                }
-                return 0;
-            }
-        }).toList();
-        int lastVersion = sortedFiles.get(sortedFiles.size() - 1).getVersion();
-        file.setVersion(lastVersion + 1);
-        return file;
+    public File updateFileVersion(MultipartFile multipartFile, String description, Long fileRefId, Album album) {
+        File file = newFile(multipartFile, description, fileRefId, album);
+        int lastVersion = fileRepository.findByFileRefId(fileRefId)
+                .orElseThrow(() -> new NoSuchElementException("Files not found"))
+                .stream()
+                .map(File::getVersion)
+                .max(Integer::compareTo)
+                .orElse(1) + 1;
+        file.setVersion(lastVersion);
+        return fileRepository.save(file);
     }
 
 
@@ -153,7 +147,7 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public void deleteFile(Long fileId, Album album) {
-        if (this.getFile(fileId) != null){
+        if (this.getFile(fileId) != null) {
             album.getFiles().remove(this.getFile(fileId));
             fileRepository.deleteById(fileId);
         } else {
@@ -171,7 +165,7 @@ public class FileServiceImpl implements FileService {
 
 
     // Создание экземпляра класса File
-    private File newFile(MultipartFile multipartFile, String description, Long fileRefId) {
+    private File newFile(MultipartFile multipartFile, String description, Long fileRefId, Album album) {
         File file = new File();
         file.setName(multipartFile.getOriginalFilename());
         file.setUploadedAt(LocalDateTime.now());
@@ -180,8 +174,8 @@ public class FileServiceImpl implements FileService {
         file.setSize(multipartFile.getSize());
         file.setUser(userService.getCurrentUser());
         file.setDescription(description);
+        file.setAlbum(album);
         file.setFileRefId(fileRefId);
-        fileRepository.save(file);
         return file;
     }
 

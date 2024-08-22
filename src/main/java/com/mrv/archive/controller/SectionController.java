@@ -36,6 +36,7 @@ public class SectionController {
                                                  @RequestBody SectionCreateDto sectionDto){
         Section section = sectionCreateDtoMapper.toEntity(sectionDto);
         Section response = sectionService.create(projectId, section);
+        response.setAlbums(null);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 

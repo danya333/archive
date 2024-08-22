@@ -28,12 +28,12 @@ public class Album {
     private LocalDateTime updatedAt;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id", insertable = false, updatable = false)
+    @JoinColumn(name = "created_by_user_id", insertable = true, updatable = true)
     @JsonBackReference
     private User createdBy;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "updated_by_user_id")
     @JsonBackReference
     private User updatedBy;
 
@@ -47,8 +47,7 @@ public class Album {
     @JsonIgnore
     private Status status;
 
-    @OneToMany(fetch = FetchType.EAGER)
-    @JoinColumn(name = "file_id")
+    @OneToMany(mappedBy = "album", fetch = FetchType.EAGER)
     @JsonManagedReference
     private List<File> files = new ArrayList<>();
 
