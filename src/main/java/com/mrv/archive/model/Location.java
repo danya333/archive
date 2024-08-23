@@ -23,7 +23,7 @@ public class Location {
     private String country;
     private String city;
 
-    @OneToMany(mappedBy = "location", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "location", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<Stage> stages = new ArrayList<>();
 }

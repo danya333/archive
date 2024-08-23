@@ -64,6 +64,10 @@ public class StageServiceImpl implements StageService {
     @Override
     @Transactional
     public void delete(Long stageId) {
-
+        if (stageRepository.existsById(stageId)) {
+            stageRepository.deleteById(stageId);
+        } else {
+            throw new NoSuchElementException("No stage found with id: " + stageId);
+        }
     }
 }

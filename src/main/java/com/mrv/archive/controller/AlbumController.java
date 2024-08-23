@@ -45,4 +45,10 @@ public class AlbumController {
         Album album = albumService.addFile(albumId, files);
         return new ResponseEntity<>(album, HttpStatus.OK);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteAlbum(@PathVariable Long id){
+        albumService.delete(id);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }

@@ -61,5 +61,10 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     @Transactional
     public void delete(Long id) {
+        if(projectRepository.existsById(id)) {
+            projectRepository.deleteById(id);
+        } else {
+            throw new NoSuchElementException("Project with id " + id + " not found");
+        }
     }
 }

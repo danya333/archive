@@ -64,6 +64,12 @@ public class StageController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteStage(@PathVariable Long id){
+        stageService.delete(id);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
 
     private StageResponseDto createStageResponseDto(Stage stage) {
         StageResponseDto responseDto = new StageResponseDto();

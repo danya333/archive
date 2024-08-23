@@ -51,6 +51,11 @@ public class SectionServiceImpl implements SectionService {
     @Override
     @Transactional
     public void delete(Long id) {
+        if(sectionRepository.existsById(id)) {
+            sectionRepository.deleteById(id);
+        } else {
+            throw new NoSuchElementException("Section with id " + id + " not found");
+        }
 
     }
 }

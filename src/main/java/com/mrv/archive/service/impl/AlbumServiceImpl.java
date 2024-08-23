@@ -83,7 +83,12 @@ public class AlbumServiceImpl implements AlbumService {
     }
 
     @Override
+    @Transactional
     public void delete(Long id) {
-
+        if(albumRepository.existsById(id)) {
+            albumRepository.deleteById(id);
+        } else {
+            throw new NoSuchElementException("Album with id " + id + " not found");
+        }
     }
 }

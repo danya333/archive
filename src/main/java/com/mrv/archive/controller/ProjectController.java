@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/locations/{locationId}/stages/{stageId}/projects")
+@RequestMapping("/api/stages/{stageId}/projects")
 @RequiredArgsConstructor
 public class ProjectController {
 
@@ -36,6 +36,12 @@ public class ProjectController {
         Project project = projectService.create(projectDto, stageId);
         project.setSections(null);
         return new ResponseEntity<>(project, HttpStatus.CREATED);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
+        projectService.delete(id);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 

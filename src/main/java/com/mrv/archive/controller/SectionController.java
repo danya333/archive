@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/locations/{locationId}/stages/{stageId}/projects/{projectId}/sections")
+@RequestMapping("/api/projects/{projectId}/sections")
 @RequiredArgsConstructor
 public class SectionController {
 
@@ -38,6 +38,13 @@ public class SectionController {
         Section response = sectionService.create(projectId, section);
         response.setAlbums(null);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteSection(@PathVariable Long id){
+        sectionService.delete(id);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 

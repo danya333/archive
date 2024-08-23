@@ -38,7 +38,4 @@ public class Stage {
     @OneToMany(mappedBy = "stage", fetch = FetchType.EAGER)
     @JsonManagedReference
     private List<Project> projects = new ArrayList<>();
-
-
-
 }

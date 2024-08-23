@@ -100,17 +100,17 @@ create table if not exists albums
 
 create table if not exists files
 (
-    id           serial8,
-    user_id      int8      not null,
-    album_id     int8      not null,
-    file_ref_id  int8      not null,
-    version int4      not null,
-    name         varchar   not null,
-    description  varchar,
-    type         varchar   not null,
-    path         varchar   not null,
-    size         int8      not null,
-    uploaded_at  timestamp not null,
+    id          serial8,
+    user_id     int8      not null,
+    album_id    int8      not null,
+    file_ref_id int8      not null,
+    version     int4      not null,
+    name        varchar   not null,
+    description varchar,
+    type        varchar   not null,
+    path        varchar   not null,
+    size        int8      not null,
+    uploaded_at timestamp not null,
     primary key (id),
     foreign key (user_id) references users (id),
     foreign key (album_id) references albums (id)
