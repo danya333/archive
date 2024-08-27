@@ -33,15 +33,15 @@ public class AlbumController {
 
     @PostMapping("/create")
     public ResponseEntity<Album> createAlbum(@PathVariable Long sectionId,
-                                             @ModelAttribute AlbumCreateRequestDto albumDto,
-                                             @RequestBody List<MultipartFile> files){
+                                             @RequestPart AlbumCreateRequestDto albumDto,
+                                             @RequestPart List<MultipartFile> files){
         Album album = albumService.create(sectionId, albumDto, files);
         return new ResponseEntity<>(album, HttpStatus.CREATED);
     }
 
     @PostMapping("/{albumId}/add")
     public ResponseEntity<Album> addFile(@PathVariable Long albumId,
-                                         @RequestBody List<MultipartFile> files){
+                                         @RequestPart List<MultipartFile> files){
         Album album = albumService.addFile(albumId, files);
         return new ResponseEntity<>(album, HttpStatus.OK);
     }

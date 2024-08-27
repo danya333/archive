@@ -30,7 +30,7 @@ public class Section {
     @JsonBackReference
     private Project project;
 
-    @OneToMany(mappedBy = "section", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "section", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<Album> albums = new ArrayList<>();
 }

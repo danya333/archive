@@ -47,8 +47,8 @@ public class FileController {
 
     @PostMapping("/{fileRefId}/update")
     public ResponseEntity<File> updateFileVersion(@PathVariable Long fileRefId,
-                                                  @RequestParam String description,
-                                                  @RequestParam MultipartFile file) {
+                                                  @RequestPart String description,
+                                                  @RequestPart MultipartFile file) {
         File parentFile = fileService.getFile(fileRefId);
         log.info("Updating file {} with description {}", fileRefId, description);
         File response = fileService.updateFileVersion(file, description, fileRefId, parentFile.getAlbum());

@@ -31,11 +31,11 @@ public class Stage {
     @JsonBackReference
     private Status status;
 
-    @OneToMany(mappedBy = "stage", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "stage", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<StageStatus> stageStatuses = new ArrayList<>();
 
-    @OneToMany(mappedBy = "stage", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "stage", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<Project> projects = new ArrayList<>();
 }

@@ -47,7 +47,7 @@ public class Album {
     @JsonIgnore
     private Status status;
 
-    @OneToMany(mappedBy = "album", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "album", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<File> files = new ArrayList<>();
 
