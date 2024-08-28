@@ -20,4 +20,5 @@ public class StageResponseDto {
     private Status status;
     private List<Status> availableStatuses;
     private List<Project> projects;
+    private List<Integer> projectYears;
 }

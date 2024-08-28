@@ -3,10 +3,8 @@ package com.mrv.archive.controller;
 import com.mrv.archive.dto.stage.StageCreateDto;
 import com.mrv.archive.dto.stage.StageResponseDto;
 import com.mrv.archive.dto.status.StatusDto;
-import com.mrv.archive.model.Location;
-import com.mrv.archive.model.Stage;
-import com.mrv.archive.model.StageStatus;
-import com.mrv.archive.model.Status;
+import com.mrv.archive.model.*;
+import com.mrv.archive.service.ProjectService;
 import com.mrv.archive.service.StageService;
 import com.mrv.archive.service.StatusService;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +13,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/locations/{locationId}/stages")
@@ -24,6 +25,7 @@ public class StageController {
 
     private final StageService stageService;
     private final StatusService statusService;
+    private final ProjectService projectService;
 
     @GetMapping("/{stageId}")
     public ResponseEntity<StageResponseDto> getStage(@PathVariable String locationId,
@@ -34,7 +36,7 @@ public class StageController {
     }
 
     @GetMapping("/{id}/statuses")
-    public ResponseEntity<List<StatusDto>> getAvailableStatuses(@PathVariable Long id){
+    public ResponseEntity<List<StatusDto>> getAvailableStatuses(@PathVariable Long id) {
         Stage stage = stageService.getById(id);
         List<Status> statuses = statusService.getStatusesByStage(stage);
         List<StatusDto> statusesDto = statuses.stream()
@@ -65,14 +67,17 @@ public class StageController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteStage(@PathVariable Long id){
+    public ResponseEntity<Void> deleteStage(@PathVariable Long id) {
         stageService.delete(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
 
     private StageResponseDto createStageResponseDto(Stage stage) {
+
+        List<Project> projects = projectService.getProjects(stage.getId());
         StageResponseDto responseDto = new StageResponseDto();
+
         responseDto.setId(stage.getId());
         responseDto.setName(stage.getName());
         responseDto.setLocation(new Location(
@@ -96,6 +101,15 @@ public class StageController {
                 .map(s -> new Status(s.getId(), s.getName(), null, null, null))
                 .toList();
         responseDto.setAvailableStatuses(statuses);
+        Set<Integer> yearsSet = new HashSet<>();
+        if (projects != null) {
+            yearsSet = projects.stream()
+                    .map(project -> project
+                            .getCreatedAt()
+                            .getYear())
+                    .collect(Collectors.toSet());
+        }
+        responseDto.setProjectYears(yearsSet.stream().sorted().toList());
         return responseDto;
     }
 

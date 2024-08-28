@@ -25,6 +25,12 @@ public class LocationController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<Location> getLocation(@PathVariable Long id){
+        Location location = locationService.getById(id);
+        return new ResponseEntity<>(location, HttpStatus.OK);
+    }
+
     @PostMapping("/create")
     public ResponseEntity<LocationDto> create(@RequestBody LocationDto locationDto) {
         Location location = locationMapper.toEntity(locationDto);
