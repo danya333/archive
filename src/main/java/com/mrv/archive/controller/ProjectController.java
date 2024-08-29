@@ -1,6 +1,7 @@
 package com.mrv.archive.controller;
 
 import com.mrv.archive.dto.project.ProjectCreateRequestDto;
+import com.mrv.archive.dto.project.ProjectYearDto;
 import com.mrv.archive.model.Project;
 import com.mrv.archive.service.ProjectService;
 import lombok.RequiredArgsConstructor;
@@ -24,10 +25,15 @@ public class ProjectController {
         return new ResponseEntity<>(project, HttpStatus.OK);
     }
 
-    @GetMapping("/list")
-    public ResponseEntity<List<Project>> list(@PathVariable Long stageId) {
+    @PostMapping("/list")
+    public ResponseEntity<List<Project>> list(@PathVariable Long stageId, @RequestBody ProjectYearDto projectYearDto) {
         List<Project> projects = projectService.getProjects(stageId);
-        return new ResponseEntity<>(projects, HttpStatus.OK);
+
+        return new ResponseEntity<>(projects.stream()
+                .filter(project -> project
+                        .getCreatedAt()
+                        .getYear() == projectYearDto.getYear())
+                .toList(), HttpStatus.OK);
     }
 
     @PostMapping("/create")
