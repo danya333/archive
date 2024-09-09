@@ -22,11 +22,7 @@ public class Status {
 
     @OneToMany(mappedBy = "status", fetch = FetchType.EAGER)
     @JsonManagedReference
-    private List<Stage> stages = new ArrayList<>();
-
-    @OneToMany(mappedBy = "status", fetch = FetchType.EAGER)
-    @JsonManagedReference
-    private List<StageStatus> stageStatuses = new ArrayList<>();
+    private List<ProjectStatus> projectStatuses = new ArrayList<>();
 
     @OneToMany(mappedBy = "status", fetch = FetchType.EAGER)
     @JsonManagedReference

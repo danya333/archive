@@ -2,12 +2,9 @@ package com.mrv.archive.service.impl;
 
 import com.mrv.archive.model.Location;
 import com.mrv.archive.model.Stage;
-import com.mrv.archive.model.Status;
 import com.mrv.archive.repository.StageRepository;
 import com.mrv.archive.service.LocationService;
 import com.mrv.archive.service.StageService;
-import com.mrv.archive.service.StageStatusService;
-import com.mrv.archive.service.StatusService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,8 +18,6 @@ public class StageServiceImpl implements StageService {
 
     private final StageRepository stageRepository;
     private final LocationService locationService;
-    private final StatusService statusService;
-    private final StageStatusService stageStatusService;
 
     @Override
     public Stage getById(Long id) {
@@ -39,25 +34,19 @@ public class StageServiceImpl implements StageService {
 
     @Override
     @Transactional
-    public Stage create(Stage stage, Long locationId, Long statusId, List<Long> statusIds) {
+    public Stage create(Stage stage, Long locationId) {
         Location location = locationService.getById(locationId);
-        Status status = statusService.getById(statusId);
         stage.setLocation(location);
-        stage.setStatus(status);
-        stageRepository.save(stage);
-        statusIds.forEach(id -> stage.getStageStatuses()
-                .add(stageStatusService.create(stage, statusService.getById(id))));
         return stageRepository.save(stage);
     }
 
     @Override
     @Transactional
-    // Нужно доработать работу со статусами
-    public Stage update(Stage stage, Long stageId, Long locationId, Long statusId) {
+    public Stage update(Stage stage, Long stageId, Long locationId) {
         Stage oldStage = this.getById(stageId);
         oldStage.setLocation(locationService.getById(locationId));
-        oldStage.setStatus(statusService.getById(statusId));
         oldStage.setName(stage.getName());
+        oldStage.setShortName(stage.getShortName());
         return stageRepository.save(oldStage);
     }
 

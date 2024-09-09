@@ -1,10 +1,11 @@
 package com.mrv.archive.service.impl;
 
+import com.mrv.archive.model.Project;
 import com.mrv.archive.model.Stage;
-import com.mrv.archive.model.StageStatus;
+import com.mrv.archive.model.ProjectStatus;
 import com.mrv.archive.model.Status;
 import com.mrv.archive.repository.StatusRepository;
-import com.mrv.archive.service.StageStatusService;
+import com.mrv.archive.service.ProjectStatusService;
 import com.mrv.archive.service.StatusService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,7 +19,7 @@ import java.util.NoSuchElementException;
 public class StatusServiceImpl implements StatusService {
 
     private final StatusRepository statusRepository;
-    private final StageStatusService stageStatusService;
+    private final ProjectStatusService projectStatusService;
 
     @Override
     public Status getById(Long id) {
@@ -32,9 +33,9 @@ public class StatusServiceImpl implements StatusService {
     }
 
     @Override
-    public List<Status> getStatusesByStage(Stage stage) {
-        List<StageStatus> stageStatuses = stageStatusService.getStageStatusesByStage(stage);
-        return stageStatuses.stream().map(StageStatus::getStatus).toList();
+    public List<Status> getStatusesByProject(Project project) {
+        List<ProjectStatus> stageStatuses = projectStatusService.getProjectStatusesByProject(project);
+        return stageStatuses.stream().map(ProjectStatus::getStatus).toList();
     }
 
     @Override

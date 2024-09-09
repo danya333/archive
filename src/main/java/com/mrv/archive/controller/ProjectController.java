@@ -3,8 +3,11 @@ package com.mrv.archive.controller;
 import com.mrv.archive.dto.project.ProjectCreateRequestDto;
 import com.mrv.archive.dto.project.ProjectListResponseDto;
 import com.mrv.archive.dto.project.ProjectYearDto;
+import com.mrv.archive.dto.status.StatusDto;
 import com.mrv.archive.model.Project;
+import com.mrv.archive.model.Status;
 import com.mrv.archive.service.ProjectService;
+import com.mrv.archive.service.StatusService;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,12 +22,22 @@ import java.util.List;
 public class ProjectController {
 
     private final ProjectService projectService;
+    private final StatusService statusService;
 
 
     @GetMapping("/{id}")
     public ResponseEntity<Project> getProject(@PathVariable Long id) {
         Project project = projectService.getProject(id);
         return new ResponseEntity<>(project, HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}/statuses")
+    public ResponseEntity<List<StatusDto>> getAvailableStatuses(@PathVariable Long id) {
+        Project project = projectService.getProject(id);
+        List<Status> statuses = statusService.getStatusesByProject(project);
+        List<StatusDto> statusesDto = statuses.stream()
+                .map(status -> new StatusDto(status.getId(), status.getName())).toList();
+        return new ResponseEntity<>(statusesDto, HttpStatus.OK);
     }
 
     @PostMapping("/list")

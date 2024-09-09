@@ -21,8 +21,10 @@ create table if not exists locations
 
 create table if not exists statuses
 (
-    id   serial8,
-    name varchar not null,
+    id          serial8,
+    name        varchar   not null,
+    start_date  timestamp not null,
+    finish_date timestamp not null,
     primary key (id)
 );
 
@@ -31,22 +33,10 @@ create table if not exists stages
 (
     id          serial8,
     name        varchar not null,
+    short_name  varchar not null,
     location_id int8    not null,
-    status_id   int8,
     primary key (id),
-    foreign key (location_id) references locations (id),
-    foreign key (status_id) references statuses (id)
-);
-
-
-create table if not exists stages_statuses
-(
-    id        serial8,
-    stage_id  int8 not null,
-    status_id int8 not null,
-    primary key (id),
-    foreign key (stage_id) references stages (id),
-    foreign key (status_id) references statuses (id)
+    foreign key (location_id) references locations (id)
 );
 
 
@@ -58,9 +48,20 @@ create table if not exists projects
     short_name varchar   not null,
     code       varchar   not null,
     created_at timestamp not null,
-    status_id  int8,
+    status_id  int8      not null,
     primary key (id),
-    foreign key (status_id) references statuses (id),
+    foreign key (stage_id) references stages (id),
+    foreign key (status_id) references statuses (id)
+);
+
+
+create table if not exists project_statuses
+(
+    id         serial8,
+    project_id int8 not null,
+    status_id  int8 not null,
+    primary key (id),
+    foreign key (project_id) references projects (id),
     foreign key (status_id) references statuses (id)
 );
 
@@ -88,6 +89,7 @@ create table if not exists albums
     name               varchar   not null,
     short_name         varchar   not null,
     code               varchar   not null,
+    completeness       int8      not null,
     created_at         timestamp not null,
     updated_at         timestamp not null,
     primary key (id),

@@ -2,10 +2,12 @@ package com.mrv.archive.service.impl;
 
 import com.mrv.archive.dto.project.ProjectCreateRequestDto;
 import com.mrv.archive.model.Project;
+import com.mrv.archive.model.ProjectStatus;
 import com.mrv.archive.model.Stage;
 import com.mrv.archive.model.Status;
 import com.mrv.archive.repository.ProjectRepository;
 import com.mrv.archive.service.ProjectService;
+import com.mrv.archive.service.ProjectStatusService;
 import com.mrv.archive.service.StageService;
 import com.mrv.archive.service.StatusService;
 import jakarta.transaction.Transactional;
@@ -23,6 +25,7 @@ public class ProjectServiceImpl implements ProjectService {
     private final ProjectRepository projectRepository;
     private final StatusService statusService;
     private final StageService stageService;
+    private final ProjectStatusService projectStatusService;
 
     @Override
     public Project getProject(Long id) {
@@ -49,6 +52,11 @@ public class ProjectServiceImpl implements ProjectService {
         project.setCode(projectCreateRequestDto.getCode());
         project.setStatus(status);
         project.setStage(stage);
+        projectRepository.save(project);
+        List<ProjectStatus> projectStatuses = projectCreateRequestDto.getStatuses().stream()
+                .map(s -> projectStatusService.create(project, statusService.getById(s)))
+                .toList();
+        project.setProjectStatuses(projectStatuses);
         return projectRepository.save(project);
     }
 
@@ -61,7 +69,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     @Transactional
     public void delete(Long id) {
-        if(projectRepository.existsById(id)) {
+        if (projectRepository.existsById(id)) {
             projectRepository.deleteById(id);
         } else {
             throw new NoSuchElementException("Project with id " + id + " not found");

@@ -16,9 +16,8 @@ import java.util.Map;
 public class StageResponseDto {
     private Long id;
     private String name;
+    private String shortName;
     private Location location;
-    private Status status;
-    private List<Status> availableStatuses;
     private List<Project> projects;
     private List<Integer> projectYears;
 }

@@ -2,11 +2,9 @@ package com.mrv.archive.controller;
 
 import com.mrv.archive.dto.stage.StageCreateDto;
 import com.mrv.archive.dto.stage.StageResponseDto;
-import com.mrv.archive.dto.status.StatusDto;
 import com.mrv.archive.model.*;
 import com.mrv.archive.service.ProjectService;
 import com.mrv.archive.service.StageService;
-import com.mrv.archive.service.StatusService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +22,6 @@ import java.util.stream.Collectors;
 public class StageController {
 
     private final StageService stageService;
-    private final StatusService statusService;
     private final ProjectService projectService;
 
     @GetMapping("/{stageId}")
@@ -33,15 +30,6 @@ public class StageController {
         Stage stage = stageService.getById(stageId);
         StageResponseDto responseDto = createStageResponseDto(stage);
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
-    }
-
-    @GetMapping("/{id}/statuses")
-    public ResponseEntity<List<StatusDto>> getAvailableStatuses(@PathVariable Long id) {
-        Stage stage = stageService.getById(id);
-        List<Status> statuses = statusService.getStatusesByStage(stage);
-        List<StatusDto> statusesDto = statuses.stream()
-                .map(status -> new StatusDto(status.getId(), status.getName())).toList();
-        return new ResponseEntity<>(statusesDto, HttpStatus.OK);
     }
 
     @GetMapping("/list")
@@ -61,8 +49,8 @@ public class StageController {
                                              @RequestBody StageCreateDto stageCreateDto) {
         Stage stage = new Stage();
         stage.setName(stageCreateDto.getName());
-        Stage response = stageService
-                .create(stage, locationId, stageCreateDto.getStatusId(), stageCreateDto.getStatusIds());
+        stage.setShortName(stageCreateDto.getShortName());
+        Stage response = stageService.create(stage, locationId);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
@@ -80,27 +68,13 @@ public class StageController {
 
         responseDto.setId(stage.getId());
         responseDto.setName(stage.getName());
+        responseDto.setShortName(stage.getShortName());
         responseDto.setLocation(new Location(
                 stage.getLocation().getId(),
                 stage.getLocation().getCountry(),
                 stage.getLocation().getCity(),
                 null
         ));
-        responseDto.setStatus(new Status(
-                stage.getStatus().getId(),
-                stage.getStatus().getName(),
-                null,
-                null,
-                null
-        ));
-        List<Status> statuses = stage.getStageStatuses()
-                .stream()
-                .map(StageStatus::getStatus)
-                .toList()
-                .stream()
-                .map(s -> new Status(s.getId(), s.getName(), null, null, null))
-                .toList();
-        responseDto.setAvailableStatuses(statuses);
         Set<Integer> yearsSet = new HashSet<>();
         if (projects != null) {
             yearsSet = projects.stream()
@@ -112,5 +86,4 @@ public class StageController {
         responseDto.setProjectYears(yearsSet.stream().sorted().toList());
         return responseDto;
     }
-
 }

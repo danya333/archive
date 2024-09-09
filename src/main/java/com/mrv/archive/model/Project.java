@@ -38,6 +38,10 @@ public class Project {
     @OneToMany(mappedBy = "project", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<Section> sections = new ArrayList<>();
+
+    @OneToMany(mappedBy = "project", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<ProjectStatus> projectStatuses = new ArrayList<>();
 }
 
 

@@ -11,6 +11,5 @@ import java.util.List;
 @NoArgsConstructor
 public class StageCreateDto {
     private String name;
-    private Long statusId;
-    private List<Long> statusIds;
+    private String shortName;
 }
