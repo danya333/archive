@@ -1,8 +1,11 @@
 package com.mrv.archive.controller;
 
 import com.mrv.archive.dto.section.SectionCreateDto;
+import com.mrv.archive.dto.section.SectionListResponseDto;
 import com.mrv.archive.mapper.SectionCreateDtoMapper;
+import com.mrv.archive.model.Project;
 import com.mrv.archive.model.Section;
+import com.mrv.archive.service.ProjectService;
 import com.mrv.archive.service.SectionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,6 +20,7 @@ import java.util.List;
 public class SectionController {
 
     private final SectionService sectionService;
+    private final ProjectService projectService;
     private final SectionCreateDtoMapper sectionCreateDtoMapper;
 
     @GetMapping("/{id}")
@@ -26,9 +30,16 @@ public class SectionController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<List<Section>> getSections(@PathVariable Long projectId){
+    public ResponseEntity<SectionListResponseDto> getSections(@PathVariable Long projectId){
         List<Section> sections = sectionService.getSections(projectId);
-        return new ResponseEntity<>(sections, HttpStatus.OK);
+        Project project = projectService.getProject(projectId);
+        SectionListResponseDto response = SectionListResponseDto.builder()
+                .city(project.getStage().getLocation().getCity())
+                .stage(project.getStage().getName())
+                .projectName(project.getName())
+                .sections(sections)
+                .build();
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PostMapping("/create")

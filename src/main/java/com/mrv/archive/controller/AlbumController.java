@@ -5,6 +5,7 @@ import com.mrv.archive.model.Album;
 import com.mrv.archive.service.AlbumService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -13,7 +14,7 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/api/locations/{locationId}/stages/{stageId}/projects/{projectId}/sections/{sectionId}/albums")
+@RequestMapping("/api/sections/{sectionId}/albums")
 @RequiredArgsConstructor
 public class AlbumController {
 
@@ -31,10 +32,10 @@ public class AlbumController {
         return new ResponseEntity<>(albums, HttpStatus.OK);
     }
 
-    @PostMapping("/create")
+    @PostMapping(path = "/create")
     public ResponseEntity<Album> createAlbum(@PathVariable Long sectionId,
                                              @RequestPart AlbumCreateRequestDto albumDto,
-                                             @RequestPart List<MultipartFile> files){
+                                             @RequestPart("files") List<MultipartFile> files){
         Album album = albumService.create(sectionId, albumDto, files);
         return new ResponseEntity<>(album, HttpStatus.CREATED);
     }

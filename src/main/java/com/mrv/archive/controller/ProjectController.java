@@ -1,9 +1,11 @@
 package com.mrv.archive.controller;
 
 import com.mrv.archive.dto.project.ProjectCreateRequestDto;
+import com.mrv.archive.dto.project.ProjectListResponseDto;
 import com.mrv.archive.dto.project.ProjectYearDto;
 import com.mrv.archive.model.Project;
 import com.mrv.archive.service.ProjectService;
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,14 +28,24 @@ public class ProjectController {
     }
 
     @PostMapping("/list")
-    public ResponseEntity<List<Project>> list(@PathVariable Long stageId, @RequestBody ProjectYearDto projectYearDto) {
+    public ResponseEntity<List<ProjectListResponseDto>> list(@PathVariable("stageId") Long stageId,
+                                                             @RequestBody ProjectYearDto projectYearDto) {
         List<Project> projects = projectService.getProjects(stageId);
-
-        return new ResponseEntity<>(projects.stream()
+        List<Project> filteredProjects = projects.stream()
                 .filter(project -> project
                         .getCreatedAt()
                         .getYear() == projectYearDto.getYear())
-                .toList(), HttpStatus.OK);
+                .toList();
+        List<ProjectListResponseDto> response = filteredProjects.stream().map(p -> ProjectListResponseDto.builder()
+                .id(p.getId())
+                .name(p.getName())
+                .shortName(p.getShortName())
+                .code(p.getCode())
+                .createdAt(p.getCreatedAt())
+                .status(p.getStatus().getName())
+                .build()
+        ).toList();
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PostMapping("/create")
