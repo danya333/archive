@@ -1,13 +1,12 @@
 package com.mrv.archive.model;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDateTime;
 
 @Entity
 @Data
@@ -19,12 +18,13 @@ public class Status {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
+    private LocalDateTime startDate;
+    private LocalDateTime finishDate;
+    private Boolean isActive;
 
-    @OneToMany(mappedBy = "status", fetch = FetchType.EAGER)
-    @JsonManagedReference
-    private List<ProjectStatus> projectStatuses = new ArrayList<>();
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "project_id")
+    @JsonBackReference
+    private Project project;
 
-    @OneToMany(mappedBy = "status", fetch = FetchType.EAGER)
-    @JsonManagedReference
-    private List<Project> projects = new ArrayList<>();
 }

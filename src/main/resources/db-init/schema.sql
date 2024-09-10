@@ -19,16 +19,6 @@ create table if not exists locations
 );
 
 
-create table if not exists statuses
-(
-    id          serial8,
-    name        varchar   not null,
-    start_date  timestamp not null,
-    finish_date timestamp not null,
-    primary key (id)
-);
-
-
 create table if not exists stages
 (
     id          serial8,
@@ -48,21 +38,21 @@ create table if not exists projects
     short_name varchar   not null,
     code       varchar   not null,
     created_at timestamp not null,
-    status_id  int8      not null,
     primary key (id),
-    foreign key (stage_id) references stages (id),
-    foreign key (status_id) references statuses (id)
+    foreign key (stage_id) references stages (id)
 );
 
 
-create table if not exists project_statuses
+create table if not exists statuses
 (
-    id         serial8,
-    project_id int8 not null,
-    status_id  int8 not null,
+    id          serial8,
+    name        varchar   not null,
+    start_date  timestamp not null,
+    finish_date timestamp not null,
+    is_active   bool      not null,
+    project_id  int8      not null,
     primary key (id),
-    foreign key (project_id) references projects (id),
-    foreign key (status_id) references statuses (id)
+    foreign key (project_id) references projects (id)
 );
 
 

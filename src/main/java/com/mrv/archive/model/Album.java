@@ -24,6 +24,7 @@ public class Album {
     private String name;
     private String shortName;
     private String code;
+    private Integer completeness;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

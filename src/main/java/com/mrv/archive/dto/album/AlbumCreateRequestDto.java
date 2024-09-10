@@ -13,4 +13,5 @@ public class AlbumCreateRequestDto {
     private String code;
     private Long statusId;
     private String description;
+    private Integer completeness;
 }

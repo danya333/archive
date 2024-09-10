@@ -25,10 +25,9 @@ public class Project {
     private String code;
     private LocalDateTime createdAt;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "status_id")
-    @JsonBackReference
-    private Status status;
+    @OneToMany(mappedBy = "project", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<Status> statuses = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "stage_id")
@@ -39,9 +38,6 @@ public class Project {
     @JsonManagedReference
     private List<Section> sections = new ArrayList<>();
 
-    @OneToMany(mappedBy = "project", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JsonManagedReference
-    private List<ProjectStatus> projectStatuses = new ArrayList<>();
 }
 
 

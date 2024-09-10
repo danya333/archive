@@ -9,28 +9,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/statuses")
 @RequiredArgsConstructor
 public class StatusController {
     private final StatusService statusService;
     private final StatusMapper statusMapper;
-
-    @GetMapping("/list")
-    public ResponseEntity<List<StatusDto>> statusList() {
-        List<Status> statuses = statusService.getAllStatuses();
-        List<StatusDto> response = statusMapper.toDto(statuses);
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-    @PostMapping("/create")
-    public ResponseEntity<StatusDto> addStatus(@RequestBody StatusDto statusDto) {
-        Status status = statusMapper.toEntity(statusDto);
-        StatusDto response = statusMapper.toDto(statusService.create(status));
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
-    }
 
     @PutMapping("/{id}")
     public ResponseEntity<StatusDto> updateStatus(@PathVariable Long id, @RequestBody StatusDto statusDto) {

@@ -1,11 +1,8 @@
 package com.mrv.archive.service.impl;
 
 import com.mrv.archive.model.Project;
-import com.mrv.archive.model.Stage;
-import com.mrv.archive.model.ProjectStatus;
 import com.mrv.archive.model.Status;
 import com.mrv.archive.repository.StatusRepository;
-import com.mrv.archive.service.ProjectStatusService;
 import com.mrv.archive.service.StatusService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,7 +16,6 @@ import java.util.NoSuchElementException;
 public class StatusServiceImpl implements StatusService {
 
     private final StatusRepository statusRepository;
-    private final ProjectStatusService projectStatusService;
 
     @Override
     public Status getById(Long id) {
@@ -27,21 +23,20 @@ public class StatusServiceImpl implements StatusService {
                 .orElseThrow(() -> new NoSuchElementException("Status not found"));
     }
 
-    @Override
-    public List<Status> getAllStatuses() {
-        return statusRepository.findAll();
-    }
 
     @Override
     public List<Status> getStatusesByProject(Project project) {
-        List<ProjectStatus> stageStatuses = projectStatusService.getProjectStatusesByProject(project);
-        return stageStatuses.stream().map(ProjectStatus::getStatus).toList();
+        return statusRepository.findAllByProject(project).orElseThrow(
+                () -> new NoSuchElementException("Statuses for project with id: " + project.getId() + "not found."));
     }
 
     @Override
     @Transactional
-    public Status create(Status status) {
-        return statusRepository.save(status);
+    public List<Status> create(List<Status> statuses, Project project) {
+        return statuses.stream().map(s -> {
+            s.setProject(project);
+            return statusRepository.save(s);
+        }).toList();
     }
 
     @Override
@@ -49,6 +44,9 @@ public class StatusServiceImpl implements StatusService {
     public Status update(Long id, Status status) {
         Status oldStatus = getById(id);
         oldStatus.setName(status.getName());
+        oldStatus.setStartDate(status.getStartDate());
+        oldStatus.setStartDate(status.getFinishDate());
+        oldStatus.setIsActive(status.getIsActive());
         return statusRepository.save(oldStatus);
     }
 
@@ -58,7 +56,7 @@ public class StatusServiceImpl implements StatusService {
         if (statusRepository.existsById(id)) {
             statusRepository.deleteById(id);
         } else {
-            throw new NoSuchElementException("Status wit id " + id + " not found");
+            throw new NoSuchElementException("Status with id " + id + " not found");
         }
     }
 }

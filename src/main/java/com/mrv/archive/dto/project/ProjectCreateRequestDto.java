@@ -13,6 +13,4 @@ public class ProjectCreateRequestDto {
     private String name;
     private String shortName;
     private String code;
-    private Long statusId;
-    private List<Long> statuses;
 }

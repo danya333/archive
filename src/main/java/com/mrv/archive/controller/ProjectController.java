@@ -4,16 +4,18 @@ import com.mrv.archive.dto.project.ProjectCreateRequestDto;
 import com.mrv.archive.dto.project.ProjectListResponseDto;
 import com.mrv.archive.dto.project.ProjectYearDto;
 import com.mrv.archive.dto.status.StatusDto;
+import com.mrv.archive.mapper.StatusMapper;
 import com.mrv.archive.model.Project;
 import com.mrv.archive.model.Status;
 import com.mrv.archive.service.ProjectService;
 import com.mrv.archive.service.StatusService;
-import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -23,6 +25,7 @@ public class ProjectController {
 
     private final ProjectService projectService;
     private final StatusService statusService;
+    private final StatusMapper statusMapper;
 
 
     @GetMapping("/{id}")
@@ -31,14 +34,6 @@ public class ProjectController {
         return new ResponseEntity<>(project, HttpStatus.OK);
     }
 
-    @GetMapping("/{id}/statuses")
-    public ResponseEntity<List<StatusDto>> getAvailableStatuses(@PathVariable Long id) {
-        Project project = projectService.getProject(id);
-        List<Status> statuses = statusService.getStatusesByProject(project);
-        List<StatusDto> statusesDto = statuses.stream()
-                .map(status -> new StatusDto(status.getId(), status.getName())).toList();
-        return new ResponseEntity<>(statusesDto, HttpStatus.OK);
-    }
 
     @PostMapping("/list")
     public ResponseEntity<List<ProjectListResponseDto>> list(@PathVariable("stageId") Long stageId,
@@ -55,17 +50,26 @@ public class ProjectController {
                 .shortName(p.getShortName())
                 .code(p.getCode())
                 .createdAt(p.getCreatedAt())
-                .status(p.getStatus().getName())
+                .statuses(p.getStatuses())
                 .build()
         ).toList();
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PostMapping("/create")
+    @PostMapping(value = "/create")
     public ResponseEntity<Project> createProject(@PathVariable Long stageId,
-                                                 @RequestBody ProjectCreateRequestDto projectDto) {
-        Project project = projectService.create(projectDto, stageId);
-        project.setSections(null);
+                                                 @RequestPart ProjectCreateRequestDto projectDto,
+                                                 @RequestPart List<StatusDto> statusDtos) {
+        List<Status> statusList = new ArrayList<>();
+        for (StatusDto statusDto : statusDtos){
+            Status status = new Status();
+            status.setName(statusDto.getName());
+            status.setIsActive(statusDto.getIsActive());
+            status.setStartDate(statusDto.getStartDate());
+            status.setFinishDate(statusDto.getFinishDate());
+            statusList.add(status);
+        }
+        Project project = projectService.create(projectDto, stageId, statusList);
         return new ResponseEntity<>(project, HttpStatus.CREATED);
     }
 
