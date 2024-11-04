@@ -75,7 +75,6 @@ create table if not exists albums
     created_by_user_id int8      not null,
     updated_by_user_id int8      not null,
     section_id         int8      not null,
-    status_id          int8      not null,
     name               varchar   not null,
     short_name         varchar   not null,
     code               varchar   not null,
@@ -86,7 +85,6 @@ create table if not exists albums
     foreign key (created_by_user_id) references users (id),
     foreign key (updated_by_user_id) references users (id),
     foreign key (section_id) references sections (id),
-    foreign key (status_id) references statuses (id)
 );
 
 

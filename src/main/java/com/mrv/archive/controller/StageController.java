@@ -10,10 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -40,18 +37,28 @@ public class StageController {
             StageResponseDto responseDto = createStageResponseDto(stage);
             stageResponseDtos.add(responseDto);
         }
+        stageResponseDtos.sort(Comparator.comparing(StageResponseDto::getId));
         return new ResponseEntity<>(stageResponseDtos, HttpStatus.OK);
     }
 
 
     @PostMapping("/create")
-    public ResponseEntity<Stage> createStage(@PathVariable Long locationId,
+    public ResponseEntity<StageResponseDto> createStage(@PathVariable Long locationId,
                                              @RequestBody StageCreateDto stageCreateDto) {
         Stage stage = new Stage();
         stage.setName(stageCreateDto.getName());
         stage.setShortName(stageCreateDto.getShortName());
         Stage response = stageService.create(stage, locationId);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+        StageResponseDto responseDto = createStageResponseDto(response);
+        return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Void> updateStage(@PathVariable Long locationId,
+                                            @PathVariable Long id,
+                                            @RequestBody StageCreateDto stageCreateDto){
+        stageService.update(stageCreateDto, id, locationId);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @DeleteMapping("/{id}")

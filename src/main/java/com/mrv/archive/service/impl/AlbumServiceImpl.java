@@ -1,6 +1,7 @@
 package com.mrv.archive.service.impl;
 
 import com.mrv.archive.dto.album.AlbumCreateRequestDto;
+import com.mrv.archive.dto.album.AlbumUpdateDto;
 import com.mrv.archive.model.*;
 import com.mrv.archive.repository.AlbumRepository;
 import com.mrv.archive.service.*;
@@ -44,7 +45,6 @@ public class AlbumServiceImpl implements AlbumService {
     public Album create(Long sectionId, AlbumCreateRequestDto albumCreateRequestDto, List<MultipartFile> files) {
         Section section = sectionService.getSection(sectionId);
         User user = userService.getCurrentUser();
-        Status status = statusService.getById(albumCreateRequestDto.getStatusId());
         Album album = new Album();
         album.setSection(section);
         album.setCreatedBy(user);
@@ -54,7 +54,11 @@ public class AlbumServiceImpl implements AlbumService {
         album.setName(albumCreateRequestDto.getName());
         album.setShortName(albumCreateRequestDto.getShortName());
         album.setCode(albumCreateRequestDto.getCode());
-        album.setStatus(status);
+        if (albumCreateRequestDto.getCompleteness() == null){
+            album.setCompleteness(0);
+        } else {
+            album.setCompleteness(albumCreateRequestDto.getCompleteness());
+        }
         albumRepository.save(album);
 //        List<File> savedFiles = files.stream()
 //                .map(file -> fileService.create(file, "Первая версия", album)).toList();
@@ -78,8 +82,24 @@ public class AlbumServiceImpl implements AlbumService {
     }
 
     @Override
-    public Album update(Long sectionId, Album album) {
-        return null;
+    @Transactional
+    public Album update(Long albumId, AlbumUpdateDto albumUpdateDto) {
+        Album album = this.getAlbum(albumId);
+        album.setName(albumUpdateDto.getName());
+        album.setShortName(albumUpdateDto.getShortName());
+        album.setCode(albumUpdateDto.getCode());
+        album.setUpdatedAt(LocalDateTime.now());
+        album.setUpdatedBy(userService.getCurrentUser());
+        albumRepository.save(album);
+        return album;
+    }
+
+    @Override
+    @Transactional
+    public void updateCompleteness(Long albumId, Integer completeness) {
+        Album album = this.getAlbum(albumId);
+        album.setCompleteness(completeness);
+        albumRepository.save(album);
     }
 
     @Override

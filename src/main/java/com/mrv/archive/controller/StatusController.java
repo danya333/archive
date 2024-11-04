@@ -2,12 +2,13 @@ package com.mrv.archive.controller;
 
 import com.mrv.archive.dto.status.StatusDto;
 import com.mrv.archive.mapper.StatusMapper;
-import com.mrv.archive.model.Status;
 import com.mrv.archive.service.StatusService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/statuses")
@@ -16,11 +17,10 @@ public class StatusController {
     private final StatusService statusService;
     private final StatusMapper statusMapper;
 
-    @PutMapping("/{id}")
-    public ResponseEntity<StatusDto> updateStatus(@PathVariable Long id, @RequestBody StatusDto statusDto) {
-        Status status = statusMapper.toEntity(statusDto);
-        Status updatedStatus = statusService.update(id, status);
-        return new ResponseEntity<>(statusMapper.toDto(updatedStatus), HttpStatus.OK);
+    @PutMapping("/update")
+    public ResponseEntity<Void> updateStatus(@RequestBody List<StatusDto> statusDtos) {
+        statusDtos.forEach(s -> statusService.update(s.getId(), statusMapper.toEntity(s)));
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")

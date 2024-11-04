@@ -8,6 +8,6 @@ public interface SectionService {
     Section getSection(Long id);
     List<Section> getSections(Long projectId);
     Section create(Long projectId, Section section);
-    Section update(Long projectId, Section section);
+    Section update(Section section);
     void delete(Long id);
 }

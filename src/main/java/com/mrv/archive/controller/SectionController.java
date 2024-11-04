@@ -51,6 +51,14 @@ public class SectionController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<Section> updateSection(@PathVariable Long id,
+                                              @RequestBody SectionCreateDto sectionDto){
+        Section section = sectionCreateDtoMapper.toEntity(sectionDto);
+        section.setId(id);
+        return new ResponseEntity<>(sectionService.update(section), HttpStatus.OK);
+    }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteSection(@PathVariable Long id){

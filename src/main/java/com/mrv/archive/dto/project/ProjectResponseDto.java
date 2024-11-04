@@ -13,11 +13,12 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ProjectListResponseDto {
+public class ProjectResponseDto {
     private Long id;
     private String name;
     private String shortName;
     private String code;
     private LocalDateTime createdAt;
     private List<Status> statuses;
+    private Integer completeness;
 }

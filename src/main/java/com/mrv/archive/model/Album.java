@@ -43,10 +43,6 @@ public class Album {
     @JsonBackReference
     private Section section;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "status_id")
-    @JsonIgnore
-    private Status status;
 
     @OneToMany(mappedBy = "album", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonManagedReference

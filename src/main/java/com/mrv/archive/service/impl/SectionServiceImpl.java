@@ -44,8 +44,12 @@ public class SectionServiceImpl implements SectionService {
 
     @Override
     @Transactional
-    public Section update(Long projectId, Section section) {
-        return null;
+    public Section update(Section section) {
+        Section oldSection = this.getSection(section.getId());
+        oldSection.setName(section.getName());
+        oldSection.setShortName(section.getShortName());
+        oldSection.setCode((section.getCode()));
+        return sectionRepository.save(oldSection);
     }
 
     @Override

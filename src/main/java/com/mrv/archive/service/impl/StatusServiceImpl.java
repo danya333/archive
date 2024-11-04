@@ -41,6 +41,14 @@ public class StatusServiceImpl implements StatusService {
 
     @Override
     @Transactional
+    public Status createOneStatus(Status status, Project project) {
+        status.setProject(project);
+        statusRepository.save(status);
+        return status;
+    }
+
+    @Override
+    @Transactional
     public Status update(Long id, Status status) {
         Status oldStatus = getById(id);
         oldStatus.setName(status.getName());

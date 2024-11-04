@@ -7,9 +7,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class AlbumCreateRequestDto {
+public class AlbumUpdateDto {
     private String name;
     private String shortName;
     private String code;
-    private Integer completeness;
 }

@@ -15,8 +15,7 @@ import java.util.List;
 
 @RestController
 @Slf4j
-@RequestMapping("/api/locations/{locationId}/stages/{stageId}/projects/{projectId}/sections/{sectionId}/albums/" +
-        "{albumId}/files")
+@RequestMapping("/api/albums/{albumId}/files")
 @RequiredArgsConstructor
 public class FileController {
 

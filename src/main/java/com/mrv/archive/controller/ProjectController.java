@@ -1,7 +1,8 @@
 package com.mrv.archive.controller;
 
 import com.mrv.archive.dto.project.ProjectCreateRequestDto;
-import com.mrv.archive.dto.project.ProjectListResponseDto;
+import com.mrv.archive.dto.project.ProjectResponseDto;
+import com.mrv.archive.dto.project.ProjectStatusDto;
 import com.mrv.archive.dto.project.ProjectYearDto;
 import com.mrv.archive.dto.status.StatusDto;
 import com.mrv.archive.mapper.StatusMapper;
@@ -29,14 +30,23 @@ public class ProjectController {
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<Project> getProject(@PathVariable Long id) {
+    public ResponseEntity<ProjectResponseDto> getProject(@PathVariable Long id) {
         Project project = projectService.getProject(id);
-        return new ResponseEntity<>(project, HttpStatus.OK);
+        ProjectResponseDto projectResponseDto = ProjectResponseDto.builder()
+                .id(project.getId())
+                .name(project.getName())
+                .shortName(project.getShortName())
+                .code(project.getCode())
+                .createdAt(project.getCreatedAt())
+                .statuses(project.getStatuses())
+                .completeness(projectService.getProjectCompleteness(project))
+                .build();
+        return new ResponseEntity<>(projectResponseDto, HttpStatus.OK);
     }
 
 
     @PostMapping("/list")
-    public ResponseEntity<List<ProjectListResponseDto>> list(@PathVariable("stageId") Long stageId,
+    public ResponseEntity<List<ProjectResponseDto>> list(@PathVariable("stageId") Long stageId,
                                                              @RequestBody ProjectYearDto projectYearDto) {
         List<Project> projects = projectService.getProjects(stageId);
         List<Project> filteredProjects = projects.stream()
@@ -44,13 +54,14 @@ public class ProjectController {
                         .getCreatedAt()
                         .getYear() == projectYearDto.getYear())
                 .toList();
-        List<ProjectListResponseDto> response = filteredProjects.stream().map(p -> ProjectListResponseDto.builder()
+        List<ProjectResponseDto> response = filteredProjects.stream().map(p -> ProjectResponseDto.builder()
                 .id(p.getId())
                 .name(p.getName())
                 .shortName(p.getShortName())
                 .code(p.getCode())
                 .createdAt(p.getCreatedAt())
                 .statuses(p.getStatuses())
+                .completeness(projectService.getProjectCompleteness(p))
                 .build()
         ).toList();
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -58,8 +69,9 @@ public class ProjectController {
 
     @PostMapping(value = "/create")
     public ResponseEntity<Project> createProject(@PathVariable Long stageId,
-                                                 @RequestPart ProjectCreateRequestDto projectDto,
-                                                 @RequestPart List<StatusDto> statusDtos) {
+                                                 @RequestBody ProjectStatusDto projectStatusDto) {
+        ProjectCreateRequestDto projectDto = projectStatusDto.getProjectDto();
+        List<StatusDto> statusDtos = projectStatusDto.getStatusDtos();
         List<Status> statusList = new ArrayList<>();
         for (StatusDto statusDto : statusDtos){
             Status status = new Status();
@@ -73,11 +85,17 @@ public class ProjectController {
         return new ResponseEntity<>(project, HttpStatus.CREATED);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<Void> updateProject(@PathVariable Long id,
+                                              @RequestBody ProjectStatusDto projectStatusDto){
+        projectService.update(projectStatusDto.getProjectDto(), id, projectStatusDto.getStatusDtos());
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
         projectService.delete(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
-
 
 }

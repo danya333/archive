@@ -1,5 +1,6 @@
 package com.mrv.archive.service.impl;
 
+import com.mrv.archive.dto.stage.StageCreateDto;
 import com.mrv.archive.model.Location;
 import com.mrv.archive.model.Stage;
 import com.mrv.archive.repository.StageRepository;
@@ -42,7 +43,7 @@ public class StageServiceImpl implements StageService {
 
     @Override
     @Transactional
-    public Stage update(Stage stage, Long stageId, Long locationId) {
+    public Stage update(StageCreateDto stage, Long stageId, Long locationId) {
         Stage oldStage = this.getById(stageId);
         oldStage.setLocation(locationService.getById(locationId));
         oldStage.setName(stage.getName());
